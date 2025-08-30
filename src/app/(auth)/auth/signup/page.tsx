@@ -1,12 +1,14 @@
 import React from 'react'
 import { LoginHeroContent } from '@/components/auth/WorkspaceLogin/LoginHeroContent'
-import { WorkspaceLoginForm } from '@/components/auth/WorkspaceLogin/WorkspaceLoginForm'
+// import { WorkspaceLoginForm } from '@/components/auth/WorkspaceLogin/WorkspaceLoginForm'
+import { WorkspaceSignupForm } from '@/components/auth/WorkspaceSignup/WorkspaceSignupForm'
 
-export default function Login() {
+export default function Signup() {
   return (
     <div className='flex  h-screen md:flex-row'>
       <div className='hidden w-1/2 md:flex flex-1 flex-col bg-gray-100 justify-center items-center h-full'>
         <LoginHeroContent />
+        {/* <WorkspaceSignupForm /> */}
       </div>
       {/* <div className='hidden md:flex flex-1  flex-col bg-gray-100 h-screen'>
           <h1 className='text-2xl font-bold pt-40 px-10 text-gray-800'>
@@ -69,7 +71,8 @@ export default function Login() {
         </div> */}
 
       <div className='flex lg:w-1/2 w-full bg-white py-20 items-center justify-center'>
-        <WorkspaceLoginForm />
+        {/* <WorkspaceLoginForm /> */}
+        <WorkspaceSignupForm />
       </div>
     </div>
   )
