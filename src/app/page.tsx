@@ -1,13 +1,14 @@
-"use client"
+'use client'
 
-import Image from "next/image"
-import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from "react"
-import Navbar from "@/components/Navbar/Navbar"
-import { Button } from "@/components/ui/button"
+import Link from 'next/link'
+import Image from 'next/image'
+// import { useRouter } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import Navbar from '@/components/Navbar/Navbar'
+import { Button } from '@/components/ui/button'
 
 export default function Home() {
-  const router = useRouter()
+  // const router = useRouter()
   const leftCardRef = useRef<HTMLDivElement>(null)
   const rightCardRef = useRef<HTMLDivElement>(null)
 
@@ -25,8 +26,8 @@ export default function Home() {
       }
     }
 
-    window.addEventListener("mousemove", handleMouseMove)
-    return () => window.removeEventListener("mousemove", handleMouseMove)
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [])
 
   const [schoolName, setSchoolName] = useState('')
@@ -40,30 +41,40 @@ export default function Home() {
     }
   }, [schoolName])
 
-  const handleClick = () => {
-    console.log('proceeding with schoolname', schoolName)
-    router.push(`/auth/signup?workspace=${schoolName}`)
-  }
+  // const handleClick = () => {
+  //   console.log('proceeding with schoolname', schoolName)
+  //   router.push(`/auth/signup?workspace=${schoolName}`)
+  // }
 
   return (
-    <main className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+    <main className='relative min-h-screen flex flex-col items-center justify-center overflow-hidden'>
       <Navbar />
 
-      <div className="flex flex-col justify-center items-center">
-
-        <div className="z-10 text-center px-4 pt-20">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+      <div className='flex flex-col justify-center items-center'>
+        <div className='z-10 text-center px-4 pt-20'>
+          <h1 className='text-4xl md:text-5xl font-bold mb-4'>
             Launch and sell your courses in minutes
           </h1>
-          <p className="mb-6 text-lg">Build your own eLearning community</p>
+          <p className='mb-6 text-lg'>
+            Build your own white-labelled eLearning community
+          </p>
         </div>
-        <Image src="/images/login-bg.png"
-          alt="Card 1"
+        <Image
+          src='/images/login-bg.png'
+          alt='Card 1'
           width={300}
           height={300}
-          className="rounded-xl right-0 items-center justify-center" />
+          className='rounded-xl right-0 items-center justify-center'
+        />
       </div>
-      <div className="flex flex-col">
+      <Link
+        href='/auth/claim-link'
+        className='py-4 items-center justify-center'>
+        <Button size='lg' className='bg-blue-700 text-white'>
+          Start Building - it&apos;s free
+        </Button>
+      </Link>
+      {/* <div className="flex flex-col">
         <div className="flex items-center justify-center gap-2 mb-2 py-4 text-center">
           <input
             type="text"
@@ -90,34 +101,32 @@ export default function Home() {
 
         <Button size="lg" onClick={handleClick} disabled={!isAvailable}>Start Building - it&apos;s free</Button>
         <p className="mt-2 text-sm text-center py-2">claim your domain before its too late !</p>
-      </div>
+      </div> */}
 
       {/* Parallax Cards */}
       <div
         ref={leftCardRef}
-        className="absolute left-10 bottom-20 hidden md:block"
-      >
+        className='absolute left-10 bottom-20 hidden md:block'>
         <Image
-          src="/images/left-banner.svg"
-          alt="Card 1"
+          src='/images/left-banner.svg'
+          alt='Card 1'
           width={400}
           height={300}
-          className="rounded-xl"
+          className='rounded-xl'
         />
       </div>
 
       <div
         ref={rightCardRef}
-        className="absolute right-10 bottom-20 hidden md:block"
-      >
+        className='absolute right-10 bottom-20 hidden md:block'>
         <Image
-          src="/images/right-banner.svg"
-          alt="Card 2"
+          src='/images/right-banner.svg'
+          alt='Card 2'
           width={400}
           height={300}
-          className="rounded-xl"
+          className='rounded-xl'
         />
       </div>
-    </main >
+    </main>
   )
 }

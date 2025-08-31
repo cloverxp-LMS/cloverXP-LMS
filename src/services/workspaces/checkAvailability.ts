@@ -1,8 +1,14 @@
-export const checkAvailability = async (workspace_slug: string) => {
+interface checkAvailabilityResp {
+    success: boolean
+    message: string
+}
+
+
+export const checkAvailability = async (workspace_slug: string) :Promise<checkAvailabilityResp> => {
     try {
         // check if workspace is available or not
         console.log('workspace_slug', workspace_slug);
-        const response = await fetch('/api/v1/checkAvailability', {
+        const response = await fetch('http://localhost:3000/api/workspaces/checkAvailability', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -15,7 +21,8 @@ export const checkAvailability = async (workspace_slug: string) => {
         const result = await response.json();
 
         if (!response.ok) {
-            throw new Error(result.error || 'Failed to create blog post');
+            // throw new Error(result.error || 'Failed to check workspace availability');
+            return { success: false, message: 'workspace not available' }
         }
 
         return result;
