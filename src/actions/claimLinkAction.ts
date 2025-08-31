@@ -5,7 +5,7 @@ export async function checkAvailability(prevState: any, formData: FormData) {
   console.log('Checking availability for workspace:', workspace)
     // Simulate availability check result
     
-    const isAvailable = false;
+    const isAvailable = true;
     if (!isAvailable) {
         return {
             success: false,

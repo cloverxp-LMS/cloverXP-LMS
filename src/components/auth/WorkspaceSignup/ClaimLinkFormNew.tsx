@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useState, useEffect, useActionState } from 'react'
-import Link from 'next/link'
+// import Link from 'next/link'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
-import { redirect } from 'next/navigation'
+// import { redirect } from 'next/navigation'
 import { Check, X } from 'lucide-react'
 import {
   Form,
@@ -80,7 +80,6 @@ export const ClaimLinkFormNew = () => {
                       </span>
                     </div>
                   </FormControl>
-
                   <FormMessage />
                 </FormItem>
               )}
@@ -108,7 +107,7 @@ export const ClaimLinkFormNew = () => {
             ) : (
               <Button
                 type='button'
-                className='w-full'
+                className='w-full bg-blue-600 text-white'
                 disabled={!isValid || isSubmitting || !state.success}>
                 Claim Domain
                 {state.success && (
