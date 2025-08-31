@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { LoginHeroContent } from '@/components/auth/WorkspaceLogin/LoginHeroContent'
 // import { WorkspaceLoginForm } from '@/components/auth/WorkspaceLogin/WorkspaceLoginForm'
 import { WorkspaceSignupForm } from '@/components/auth/WorkspaceSignup/WorkspaceSignupForm'
@@ -72,7 +72,9 @@ export default function Signup() {
 
       <div className='flex lg:w-1/2 w-full bg-white py-20 items-center justify-center'>
         {/* <WorkspaceLoginForm /> */}
-        <WorkspaceSignupForm />
+        <Suspense>
+          <WorkspaceSignupForm />
+        </Suspense>
       </div>
     </div>
   )
