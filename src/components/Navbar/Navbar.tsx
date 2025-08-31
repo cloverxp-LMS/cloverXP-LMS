@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 
 export const Navbar = () => {
   return (
-    <header className='py-4 shadow-sm fixed top-0 w-full z-10'>
+    <header className='py-4 shadow-sm fixed top-0 w-full z-40 bg-white'>
       <nav className='flex px-4 mx-4 justify-between items-center'>
         <div className='flex text-black text-lg font-bold items-center'>
           <Link href='/' className='flex items-center'>
@@ -17,7 +17,10 @@ export const Navbar = () => {
               height={40}
             />
           </Link>
-          <Link href="/how-it-works" className="px-8"> How it works</Link>
+          <Link href='/how-it-works' className='px-8'>
+            {' '}
+            How it works
+          </Link>
         </div>
         <div className='flex items-center space-x-4'>
           <Link href='/auth/login'>

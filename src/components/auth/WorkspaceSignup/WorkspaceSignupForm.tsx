@@ -1,5 +1,6 @@
 'use client'
-import React from 'react'
+
+import React, { useActionState } from 'react'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -14,12 +15,15 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
-import { useRouter } from 'next/navigation'
+// import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { useSearchParams } from 'next/navigation'
+import { redirect } from 'next/navigation'
+// import { useFormState, useFormStatus } from 'react-dom'
+// import { useSearchParams } from 'next/navigation'
 
 import { z } from 'zod'
+import { createAccount } from '@/actions/signupAction'
 // import { AlertCircleIcon } from 'lucide-react'
 // import {
 //     Alert,
@@ -27,66 +31,88 @@ import { z } from 'zod'
 //     AlertTitle
 // } from '@/components/ui/alert'
 
-const formSchema = z.object({
+export const signupFormSchema = z.object({
+  workspace: z.string().min(8).max(10), // do the check for spaces
   email: z.string().min(2).max(100).email(),
   password: z.string().min(6).max(12),
   confirmPassword: z.string().min(6).max(12),
-  agreeToTerms: z.boolean()
+  agreeToTerms: z.literal(true, {
+    errorMap: () => ({ message: 'You must accept the terms and conditions' })
+  })
 })
 
-export const WorkspaceSignupForm = () => {
-  const router = useRouter()
-  const queryParams = useSearchParams()
+export const WorkspaceSignupForm = ({
+  workspaceSlug
+}: {
+  workspaceSlug: string
+}) => {
+  //   const router = useRouter()
+  //   const queryParams = useSearchParams()
 
-  const workspace = queryParams.get('workspace')
+  //   const workspace = queryParams.get('workspace')
 
   const isAvailable = true // TODO: need to check if its available based on the workspace
 
-  if (!workspace) {
-    router.push('/auth/claim-link')
+  if (!workspaceSlug) {
+    redirect('/auth/claim-link')
+    // router.push('/auth/claim-link')
   }
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const [state, formAction] = useActionState(createAccount, {
+    success: false,
+    errors: undefined
+  })
+
+  const form = useForm<z.infer<typeof signupFormSchema>>({
+    resolver: zodResolver(signupFormSchema),
+    mode: 'onChange', // 👈 important
     defaultValues: {
+      workspace: workspaceSlug,
       email: '',
       password: '',
       confirmPassword: '',
-      agreeToTerms: false
+      agreeToTerms: undefined
     }
   })
+  const {
+    control,
+    formState: { isValid, isSubmitting, isDirty }
+  } = form
   // const [isInvalidWorkspaceId, setIsInvalidWorkspaceId] = useState<boolean>(false)
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values)
+  //   const onSubmit = (values: z.infer<typeof formSchema>) => {
+  //     console.log(values)
 
-    // check if the workspace Id exists in the database or not
+  //     // check if the workspace Id exists in the database or not
 
-    // if does not exist throw error - Workspace not found
-    // if (values.email !== 'zlancers9898@gmail.com') { // backend logic will go here
-    //     setIsInvalidWorkspaceId(true)
-    // }
+  //     // call api to check if workspace id exists in database or not
 
-    // if exists redirect to the next step with the workspace id
+  //     // if does not exist throw error - Workspace not found
+  //     // if (values.email !== 'zlancers9898@gmail.com') { // backend logic will go here
+  //     //     setIsInvalidWorkspaceId(true)
+  //     // }
 
-    if (values.email) {
-      // setIsInvalidWorkspaceId(false)
-      router.push(`/auth/verify-code`)
-    }
-  }
+  //     // if exists redirect to the next step with the workspace id
+
+  //     if (values.email) {
+  //       // setIsInvalidWorkspaceId(false)
+  //       //   router.push(`/auth/verify-code`)
+  //       redirect('/auth/verify-code')
+  //     }
+  //   }
 
   return (
     // You could have a loading skeleton as the `fallback` too
 
-    <div className='bg-white w-3/4 md:w-2/4'>
-      {workspace && isAvailable && (
+    <div className='bg-white w-[400px] mx-auto'>
+      {workspaceSlug && isAvailable && (
         <>
-          <h2 className='text-3xl font-bold mb-4 text-gray-800'>
+          <h2 className='text-3xl font-bold mt-8 text-gray-800'>
             Now create your account
           </h2>
           <p className='text-gray-600 mb-6'>
             Just a step away from claiming{' '}
-            <strong>{workspace}.cloverxp.com</strong>
+            <strong>{workspaceSlug}.cloverxp.com</strong>
           </p>
         </>
       )}
@@ -99,10 +125,22 @@ export const WorkspaceSignupForm = () => {
                 Register with your email to create, manage, and sell eLearning courses – all in one place!
             </p> */}
 
+      {state?.success && (
+        <p className='text-green-500'>Account created successfully!</p>
+      )}
+
+      {state?.errors && (
+        <p className='text-red-500 py-2 px-2 border-1 border-gray-300 rounded-sm my-2'>
+          {' '}
+          Signup Failed - {state?.errors as string}
+        </p>
+      )}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+        {/* <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'> */}
+        <form action={formAction} className='space-y-4'>
+          <input type='hidden' name='workspace' value={workspaceSlug || ''} />
           <FormField
-            control={form.control}
+            control={control}
             name='email'
             render={({ field }) => (
               <FormItem>
@@ -120,7 +158,7 @@ export const WorkspaceSignupForm = () => {
             )}
           />
           <FormField
-            control={form.control}
+            control={control}
             name='password'
             render={({ field }) => (
               <FormItem>
@@ -140,7 +178,7 @@ export const WorkspaceSignupForm = () => {
             )}
           />
           <FormField
-            control={form.control}
+            control={control}
             name='confirmPassword'
             render={({ field }) => (
               <FormItem>
@@ -160,7 +198,7 @@ export const WorkspaceSignupForm = () => {
           />
           <FormMessage />
           <FormField
-            control={form.control}
+            control={control}
             name='agreeToTerms'
             render={({ field }) => (
               <FormItem>
@@ -175,11 +213,12 @@ export const WorkspaceSignupForm = () => {
               </FormItem>
             )}
           />
+          <FormMessage />
           <Button
             type='submit'
-            disabled={false}
+            disabled={!isValid || !isDirty || isSubmitting}
             className='w-full mb-4 bg-blue-500 text-white rounded-md px-4 py-2'>
-            Sign up
+            {isSubmitting ? 'Signing up...' : 'Sign up'}
           </Button>
         </form>
       </Form>
