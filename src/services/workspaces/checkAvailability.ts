@@ -8,7 +8,7 @@ export const checkAvailability = async (workspace_slug: string) :Promise<checkAv
     try {
         // check if workspace is available or not
         console.log('workspace_slug', workspace_slug);
-        const response = await fetch('http://localhost:3000/api/workspaces/checkAvailability', {
+        const response = await fetch('/api/workspaces/checkAvailability', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
