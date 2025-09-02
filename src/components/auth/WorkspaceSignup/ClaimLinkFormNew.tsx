@@ -1,12 +1,16 @@
 'use client'
 
-import React, { useState, useEffect, useActionState } from 'react'
+import React, {
+  useState,
+  useEffect,
+  useActionState,
+  useTransition
+} from 'react'
 import Link from 'next/link'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
-// import { redirect } from 'next/navigation'
 import { Check, X } from 'lucide-react'
 import {
   Form,
@@ -34,6 +38,7 @@ const initialState = {
 }
 
 export const ClaimLinkFormNew = () => {
+  const [isPending, startTransition] = useTransition() // 👈 Hook here
   const [serverState, setServerState] = useState({
     success: false,
     message: ''
@@ -41,7 +46,9 @@ export const ClaimLinkFormNew = () => {
   const [state, formAction] = useActionState(
     async (prev: any, formData: FormData) => {
       const result = await checkAvailabilityAction(prev, formData)
-      setServerState(result) // update local mirror
+      startTransition(() => {
+        setServerState(result) // non-blocking update
+      })
       return result
     },
     initialState
@@ -131,19 +138,26 @@ export const ClaimLinkFormNew = () => {
                 :( It&apos;s unavailable, please try again
               </p>
             )}
-            {serverState.message === '' ? (
+            {serverState.message === '' || isSubmitting || isPending ? (
               <Button
                 type='submit'
                 className='w-full'
-                disabled={!isValid || isSubmitting}>
-                {isSubmitting ? 'Checking...' : 'Check Availability'}
+                disabled={!isValid || isSubmitting || isPending}>
+                {isSubmitting || isPending
+                  ? 'Checking...'
+                  : 'Check Availability'}
               </Button>
             ) : (
               <Link href={`/auth/signup?workspace=${workspaceValue}`}>
                 <Button
                   type='button'
                   className='w-full bg-blue-600 text-white'
-                  disabled={!isValid || isSubmitting || !serverState.success}>
+                  disabled={
+                    !isValid ||
+                    isSubmitting ||
+                    isPending ||
+                    !serverState.success
+                  }>
                   Claim your domain
                   {serverState.success && (
                     <Check className='text-green-600 ml-2 w-5 h-5' />

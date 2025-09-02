@@ -1,141 +1,155 @@
 'use client'
 
 import { useState } from 'react'
-import { zodResolver } from "@hookform/resolvers/zod"
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { z } from "zod"
+import { z } from 'zod'
 import Link from 'next/link'
+import { AlertCircleIcon } from 'lucide-react'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button'
 import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
 } from '@/components/ui/form'
 
 import {
-    InputOTP,
-    InputOTPGroup,
-    InputOTPSlot,
-} from "@/components/ui/input-otp"
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot
+} from '@/components/ui/input-otp'
 
 const FormSchema = z.object({
-    pin: z.string().min(6, {
-        message: "Your one-time password must be 6 characters."
-    })
+  pin: z.string().min(6, {
+    message: 'Your one-time password must be 6 characters.'
+  })
 })
 
 export function VerifyOTPForm() {
-    const [isVerified, setIsVerified] = useState(false)
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
-        defaultValues: {
-            pin: ""
-        }
+  const [isVerified, setIsVerified] = useState(false)
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      pin: ''
+    }
+  })
+
+  function onSubmit(values: z.infer<typeof FormSchema>) {
+    console.log('values', values)
+    toast('You submitted the following values', {
+      description: (
+        <pre className='mt-2 w-[320px] rounded-md bg-neutral-950 p-4'>
+          <code className='text-white'>{JSON.stringify(values, null, 2)}</code>
+        </pre>
+      )
     })
 
-    function onSubmit(values: z.infer<typeof FormSchema>) {
-        console.log('values', values)
-        toast("You submitted the following values", {
-            description: (
-                <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-                    <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-                </pre>
-            ),
-        })
-
-        // check if email otp is valid
-        if (values.pin === '123456') {
-            setIsVerified(true)
-            toast("Verified OTP")
-        } else {
-            setIsVerified(false)
-            toast('Incorrect OTP')
-        }
-
-
+    // check if email otp is valid
+    if (values.pin === '123456') {
+      setIsVerified(true)
+      toast('Verified OTP')
+    } else {
+      setIsVerified(false)
+      toast('Incorrect OTP')
     }
+  }
 
-    if (isVerified) {
-        return (
-            <div>
-                <h2 className='text-3xl font-bold mb-4 text-gray-800'>
-                    Wohoo, Email Verified !
-                </h2>
-
-                <p className='text-gray-600 mb-6'>Thank you for verifying your email address. You can sign in to continue</p>
-
-                <p className='text-gray-600 mt-4'>
-                    Continue setting up your workspace {' '}
-                    <Link
-                        href='/auth/login'
-                        className='text-blue-500 hover:underline'>
-                        Login
-                    </Link>
-                </p>
-            </div>
-        )
-    }
-
+  if (isVerified) {
     return (
-        <>
-            <div>
-                <h2 className='text-3xl font-bold mb-4 text-gray-800'>
-                    Verification Code
-                </h2>
-                <p className='text-gray-600 mb-6'>
-                    You have successfully signed up. Please check your email to confirm your account before signing in.
-                </p>
+      <div>
+        <h2 className='text-3xl font-bold mb-4 text-gray-800'>
+          Wohoo, Email Verified !
+        </h2>
 
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6 my-4">
-                        <FormField
-                            control={form.control}
-                            name="pin"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>One-Time Password</FormLabel>
-                                    <FormControl>
-                                        <InputOTP maxLength={6} pattern='^\d+$' {...field}>
-                                            <InputOTPGroup>
-                                                <InputOTPSlot index={0} />
-                                                <InputOTPSlot index={1} />
-                                                <InputOTPSlot index={2} />
-                                                <InputOTPSlot index={3} />
-                                                <InputOTPSlot index={4} />
-                                                <InputOTPSlot index={5} />
-                                            </InputOTPGroup>
-                                        </InputOTP>
-                                    </FormControl>
-                                    <FormDescription>
-                                        Please enter the one-time password sent to your email.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <Button
-                            type='submit'
-                            disabled={false}
-                            className='w-full mb-4 bg-blue-500 text-white rounded-md px-4 py-2'>
-                            Continue
-                        </Button>
-                        <p>
-                            Din&apos;t get a code ? <Link href="/" className='text-blue-500'>Resend</Link>
-                        </p>
-                        <p>
-                            Resent Verification OTP, Please check your email
-                        </p>
-                        {/* <Button type="submit">Submit</Button> */}
-                    </form>
-                </Form>
+        <p className='text-gray-600 mb-6'>
+          Thank you for verifying your email address. You can sign in to
+          continue
+        </p>
 
-            </div>
-        </>
+        <p className='text-gray-600 mt-4'>
+          Continue setting up your workspace{' '}
+          <Link href='/auth/login' className='text-blue-500 hover:underline'>
+            Login
+          </Link>
+        </p>
+      </div>
     )
+  }
+
+  return (
+    <>
+      <div>
+        <h2 className='text-3xl font-bold mb-4 text-gray-800'>
+          Verification Code
+        </h2>
+        <p className='text-gray-600 mb-6'>
+          You have successfully signed up. Please check for{' '}
+          <strong>verification email</strong> to confirm your account before
+          signing in.
+        </p>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className='w-2/3 space-y-6 my-4'>
+            <FormField
+              control={form.control}
+              name='pin'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>One-Time Password</FormLabel>
+                  <FormControl>
+                    <InputOTP maxLength={6} pattern='^\d+$' {...field}>
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                        <InputOTPSlot index={3} />
+                        <InputOTPSlot index={4} />
+                        <InputOTPSlot index={5} />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </FormControl>
+                  <FormDescription>
+                    Please enter the one-time password sent to your email.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              type='submit'
+              disabled={false}
+              className='w-full mb-4 bg-blue-500 text-white rounded-md px-4 py-2'>
+              Continue
+            </Button>
+          </form>
+        </Form>
+        <p>
+          Din&apos;t get a code ?{' '}
+          <Link href='/' className='text-blue-500'>
+            Resend code
+          </Link>
+        </p>
+      </div>
+      <Alert className='my-2'>
+        <AlertCircleIcon />
+        <AlertTitle>
+          <strong>Check your email</strong>
+        </AlertTitle>
+
+        <AlertDescription>
+          <p className='py-2 text-blue-700'>
+            Resent Verification OTP, Please check your email
+          </p>
+        </AlertDescription>
+      </Alert>
+    </>
+  )
 }

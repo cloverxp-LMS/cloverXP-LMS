@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 // const formSchema = z.object({
 //   username: z.string().min(2, { message: "Username must be at least 2 characters." }),
 // });
- const signupFormSchema = z.object({
+const signupFormSchema = z.object({
   workspace: z.string()
   .min(4, { message: "Workspace must be at least 4 characters" })
   .max(10, { message: "Workspace must be at most 10 characters" })
@@ -15,34 +15,24 @@ import { revalidatePath } from "next/cache";
   email: z.string().min(2).max(100).email(),
   password: z.string().min(6).max(12),
   confirmPassword: z.string().min(6).max(12),
-  agreeToTerms: z.boolean()
+  consent: z
+    .boolean({ required_error: 'You must accept the terms and conditions.' })
+    .refine((val) => val === true, {
+      message: 'You must accept the terms and conditions.'
+    })
 })
 
 // Create the server action function
 export async function createAccount(prevState: any, formData: FormData) {
   // Extract data from the FormData object
-    // const username = formData.get("username");
     const workspace = formData.get("workspace");
     const emailId = formData.get("email");
     const password = formData.get("password");
     const confirmPassword = formData.get("confirmPassword");
-    const agreeToTerms = formData.get("agreeToTerms");
-
-    console.log('workspace', workspace);
-    console.log('emailId', emailId);
-    console.log('password', password);
-    console.log('confirmPassword', confirmPassword);
-    console.log('agreeToTerms', agreeToTerms);
-        
-    // workspace
-    // email
-    // password
-    // repeat password
-    // agreetotermsandconditions
-
+    const consent = formData.get("consent") === 'true';
 
   // Validate the data using Zod
-  const validation = signupFormSchema.safeParse({  workspace, email: emailId, password, confirmPassword, agreeToTerms});
+  const validation = signupFormSchema.safeParse({  workspace, email: emailId, password, confirmPassword, consent});
 
     // check if password matches with confirmPassword
     if (confirmPassword !== password) {
