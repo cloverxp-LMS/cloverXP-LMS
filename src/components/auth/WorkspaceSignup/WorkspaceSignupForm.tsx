@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/form'
 // import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form' // ,Controller
 import { redirect } from 'next/navigation'
 // import { useFormState, useFormStatus } from 'react-dom'
 // import { useSearchParams } from 'next/navigation'
@@ -25,20 +25,22 @@ import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { createAccount } from '@/actions/signupAction'
 // import { AlertCircleIcon } from 'lucide-react'
-// import {
-//     Alert,
-//     AlertDescription,
-//     AlertTitle
-// } from '@/components/ui/alert'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 export const signupFormSchema = z.object({
-  workspace: z.string().min(8).max(10), // do the check for spaces
+  workspace: z
+    .string()
+    .min(4, { message: 'Workspace must be at least 4 characters' })
+    .max(10, { message: 'Workspace must be at most 10 characters' })
+    .regex(/^[^\s]+$/, { message: 'Workspace cannot contain spaces' }),
   email: z.string().min(2).max(100).email(),
   password: z.string().min(6).max(12),
   confirmPassword: z.string().min(6).max(12),
-  agreeToTerms: z.literal(true, {
-    errorMap: () => ({ message: 'You must accept the terms and conditions' })
-  })
+  consent: z
+    .boolean({ required_error: 'You must accept the terms and conditions.' })
+    .refine((val) => val === true, {
+      message: 'You must accept the terms and conditions.'
+    })
 })
 
 export const WorkspaceSignupForm = ({
@@ -58,7 +60,7 @@ export const WorkspaceSignupForm = ({
     // router.push('/auth/claim-link')
   }
 
-  const [state, formAction] = useActionState(createAccount, {
+  const [state, formAction, isPending] = useActionState(createAccount, {
     success: false,
     errors: undefined
   })
@@ -71,7 +73,7 @@ export const WorkspaceSignupForm = ({
       email: '',
       password: '',
       confirmPassword: '',
-      agreeToTerms: undefined
+      consent: false
     }
   })
   const {
@@ -100,6 +102,25 @@ export const WorkspaceSignupForm = ({
   //       redirect('/auth/verify-code')
   //     }
   //   }
+  console.log('state', state)
+  console.log('isValid', isValid)
+  if (state.success) {
+    redirect('/auth/verify-email')
+    // return (
+    //   <Alert>
+    //     <AlertTitle>
+    //       {' '}
+    //       <strong>Yay !! </strong>
+    //     </AlertTitle>
+
+    //     <AlertDescription>
+    //       <p className='text-blue-700'>
+    //         Account created successfully, Please check your email !
+    //       </p>
+    //     </AlertDescription>
+    //   </Alert>
+    // )
+  }
 
   return (
     // You could have a loading skeleton as the `fallback` too
@@ -126,18 +147,37 @@ export const WorkspaceSignupForm = ({
             </p> */}
 
       {state?.success && (
-        <p className='text-green-500'>Account created successfully!</p>
+        <Alert>
+          <AlertTitle>
+            {' '}
+            <strong>Yay !! </strong>
+          </AlertTitle>
+
+          <AlertDescription>
+            <p className='text-blue-700'>
+              Account created successfully, Please check your email !
+            </p>
+          </AlertDescription>
+        </Alert>
       )}
 
       {state?.errors && (
-        <p className='text-red-500 py-2 px-2 border-1 border-gray-300 rounded-sm my-2'>
-          {' '}
-          Signup Failed - {state?.errors as string}
-        </p>
+        <div className='text-red-500 py-2 px-2 border border-gray-300 rounded-sm my-2 space-y-1'>
+          <p className='font-semibold'>Signup Failed:</p>
+          <ul className='list-disc list-inside'>
+            {Object.entries(state.errors).map(([field, messages]) =>
+              (messages as string[]).map((msg, i) => (
+                <li key={field + i}>
+                  {field}: {msg}
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
       )}
       <Form {...form}>
         {/* <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'> */}
-        <form action={formAction} className='space-y-4'>
+        <form action={formAction} className='space-y-4 py-2'>
           <input type='hidden' name='workspace' value={workspaceSlug || ''} />
           <FormField
             control={control}
@@ -193,32 +233,68 @@ export const WorkspaceSignupForm = ({
                     {...field}
                   />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
-          <FormMessage />
+
           <FormField
             control={control}
-            name='agreeToTerms'
+            name='consent'
             render={({ field }) => (
               <FormItem>
                 <div className='flex items-center gap-2'>
                   <Checkbox
-                    id='terms'
+                    id='consent'
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    // onCheckedChange={field.onChange}
+                    onCheckedChange={(checked) =>
+                      field.onChange(checked === true)
+                    }
                   />
-                  <Label htmlFor='terms'> I accept terms and conditions</Label>
+                  <Label htmlFor='consent'>
+                    {' '}
+                    I accept terms and conditions
+                  </Label>
                 </div>
+                {/* hidden input ensures value goes into FormData since shadcn is looking for a native input */}
+                <input
+                  type='hidden'
+                  name='consent'
+                  value={field.value ? 'true' : 'false'}
+                />
+                <FormMessage />
               </FormItem>
             )}
           />
-          <FormMessage />
+          {/* <FormItem>
+            <Controller
+              name='consent'
+              control={control}
+              render={({ field }) => (
+                <div className='flex items-center space-x-2'>
+                  <Checkbox
+                    id='consent'
+                    checked={field.value}
+                    onCheckedChange={(checked) =>
+                      field.onChange(checked === true)
+                    } 
+                  />
+                  <Label htmlFor='consent'>
+                    I accept the terms and conditions.
+                  </Label>
+                </div>
+              )}
+            />
+
+            <FormMessage />
+          </FormItem> */}
+
           <Button
             type='submit'
-            disabled={!isValid || !isDirty || isSubmitting}
+            disabled={!isValid || !isDirty || isSubmitting || isPending}
             className='w-full mb-4 bg-blue-500 text-white rounded-md px-4 py-2'>
-            {isSubmitting ? 'Signing up...' : 'Sign up'}
+            {isSubmitting || isPending ? 'Signing up...' : 'Sign up'}
           </Button>
         </form>
       </Form>
